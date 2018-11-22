@@ -1,4 +1,9 @@
-import java.util.LinkedList; 
+// Java program to implement solution of producer 
+// consumer problem. 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.LinkedList;
+import java.util.Scanner; 
 
 public class Threadexample 
 { 
@@ -58,27 +63,48 @@ public class Threadexample
 	{ 
 		// Create a list shared by producer and consumer 
 		// Size of list is 2. 
-		LinkedList<Integer> list = new LinkedList<>(); 
+		LinkedList<String[]> transakcija = new LinkedList<>(); 
 		int capacity = 2; 
-
+		String datoteka = "//home//lovro//eclipse-workspace//testMAI//docs//HOCIDC.001";
+		String kontrola = "F";
+		int brojac2 = 0;
+		
 		// Function called by producer thread 
 		public void produce() throws InterruptedException 
 		{ 
-			int value = 0; 
+			String[] buffer = new String[12];
+			int brojac = 0;
+			try (Scanner scanner = new Scanner(new File(datoteka));) 
+			{
+			scanner.useDelimiter("\n");
+			
+			while (scanner.hasNext()) {
+				String token = scanner.nextLine();
+				buffer = token.split(":");
+				brojac++;
+				transakcija.add(buffer);
+				if (buffer[6].equals(kontrola))
+					break;
+				
+			}
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
 			while (true) 
 			{ 
 				synchronized (this) 
 				{ 
 					// producer thread waits while list 
 					// is full 
-					while (list.size()==capacity) 
+					while (transakcija.size()==capacity) 
 						wait(); 
 
 					System.out.println("Producer produced-"
-												+ value); 
+												+ buffer[6]); 
 
 					// to insert the jobs in the list 
-					list.add(value++); 
+					transakcija.add(buffer); 
 
 					// notifies the consumer thread that 
 					// now it can start consuming 
@@ -100,14 +126,16 @@ public class Threadexample
 				{ 
 					// consumer thread waits while list 
 					// is empty 
-					while (list.size()==0) 
+					while (transakcija.size()==0) 
 						wait(); 
 
 					//to retrive the ifrst job in the list 
-					int val = list.removeFirst(); 
+					String[] val = transakcija.removeFirst(); 
 
+					for (int i = 0; i<val.length; i++) {
 					System.out.println("Consumer consumed-"
-													+ val); 
+													+ val[i]);
+					}
 
 					// Wake up producer thread 
 					notify(); 
@@ -119,4 +147,3 @@ public class Threadexample
 		} 
 	} 
 } 
-
